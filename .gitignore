@@ -1,0 +1,28 @@
+# 비밀 정보
+secrets/
+.env
+.env.*
+*.pem
+*.key
+rclone.conf
+
+# DB 백업과 데이터
+*.sql
+*.sql.gz
+*.csv
+data/
+dbdata/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# 문서
+*.md
+!README.md
+
+# 기타
+*.log
+.DS_Store
+.vscode/
