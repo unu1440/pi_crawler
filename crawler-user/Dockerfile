@@ -5,5 +5,5 @@ FROM php:8.1-apache-bookworm
 RUN pecl install redis \
     && docker-php-ext-enable redis
 
-# 소스를 이미지에 복사해 다른 PC에서도 바인드 마운트 없이 실행되게 함
+# 소스를 이미지에 복사해 다른 PC에서도 바인드 마운트 없이 실행
 COPY ./src /var/www/html

@@ -9,6 +9,7 @@ rclone.conf
 
 # DB 백업과 데이터
 *.sql
+!db/init/*.sql
 *.sql.gz
 *.csv
 data/
