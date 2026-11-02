@@ -18,7 +18,7 @@ def open_connection():
         database=os.environ["DB_NAME"],
         charset="utf8mb4",
         cursorclass=DictCursor,
-        init_command="SET time_zone = '+00:00'",  # 시각을 UTC로 통일
+        init_command="SET time_zone = '+00:00', group_concat_max_len = 8192",  # UTC 통일, 키워드 묶음 길이 확대
         connect_timeout=5,
     )
 
