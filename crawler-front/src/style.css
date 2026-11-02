@@ -1,0 +1,119 @@
+/* 기본 */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: #e4e4e4;
+  color: #222222;
+  font: 15px/1.5 "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+}
+
+h1, h2, p, ul { margin: 0; padding: 0; }
+h2 { font-size: 15px; }
+ul { list-style: none; }
+a { color: inherit; }
+
+input, select, button, .button-link {
+  font: inherit;
+  color: inherit;
+  border: 1px solid #aaaaaa;
+  border-radius: 3px;
+  background: #ffffff;
+}
+
+input, select { width: 100%; min-width: 0; padding: 8px; }
+button, .button-link { padding: 7px 12px; text-decoration: none; cursor: pointer; }
+button:disabled { opacity: 0.6; }
+button.primary { border-color: #333333; background: #333333; color: #ffffff; }
+
+.hint { color: #666666; font-size: 13px; font-weight: 400; }
+.error { color: #b00020; font-size: 13px; }
+
+/* 로그인 */
+.auth { display: grid; place-items: center; min-height: 100vh; padding: 16px; }
+.auth-form { display: grid; gap: 12px; width: min(300px, 100%); }
+.auth-form h1 { font-size: 20px; }
+.auth-form label { display: grid; gap: 4px; font-size: 13px; }
+.auth-switch { display: flex; justify-content: center; gap: 6px; }
+.auth-switch button { padding: 2px 6px; border: 0; background: none; color: #666666; font-size: 13px; }
+.auth-switch button[aria-pressed="true"] { color: #222222; font-weight: 700; }
+
+/* 대시보드 */
+.app { max-width: 1100px; margin: 0 auto; padding: 0 16px 40px; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; }
+.account { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.banner { margin-bottom: 10px; }
+
+/* 처리 현황 */
+.bento {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr);
+  gap: 1px;
+  border: 1px solid #bbbbbb;
+  background: #bbbbbb;
+}
+
+.tile { display: grid; gap: 6px; align-content: start; padding: 12px; background: #f2f2f2; }
+.tile-label { color: #666666; font-size: 13px; }
+.tile strong { font-size: 26px; line-height: 1.1; }
+.tile-action button { justify-self: start; }
+
+/* 본문 */
+.layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.side { display: grid; gap: 20px; }
+.panel, .results { display: grid; gap: 10px; min-width: 0; }
+
+/* 키워드 */
+.keyword-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+.keyword-form select { grid-column: 1 / -1; }
+
+.keyword-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid #cccccc;
+}
+
+.keyword-list small { color: #666666; }
+.keyword-list button { padding: 2px 7px; font-size: 12px; }
+
+/* 분류 막대 */
+.bars { display: grid; gap: 8px; }
+.bar-label { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.bar-track { height: 4px; background: #cccccc; }
+.bar-fill { height: 100%; background: #333333; }
+
+/* 결과 */
+.results-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chips:empty { display: none; }
+.chips button { padding: 3px 9px; font-size: 13px; }
+.chips button[aria-pressed="true"] { border-color: #333333; background: #333333; color: #ffffff; }
+
+.articles { border-top: 1px solid #bbbbbb; }
+.article { padding: 10px 0; border-bottom: 1px solid #cccccc; }
+.article-meta { display: flex; flex-wrap: wrap; gap: 2px 8px; color: #666666; font-size: 12px; }
+.article-title { display: block; margin: 2px 0; font-weight: 700; overflow-wrap: anywhere; }
+.article-excerpt { color: #555555; font-size: 14px; overflow-wrap: anywhere; }
+.article-tags { display: flex; flex-wrap: wrap; gap: 3px 7px; margin-top: 3px; color: #666666; font-size: 12px; }
+
+.empty { padding: 20px; text-align: center; }
+.more { justify-self: center; }
+
+/* 좁은 화면 */
+@media (max-width: 900px) {
+  .bento { grid-template-columns: repeat(2, 1fr); }
+  .tile-action { grid-column: 1 / -1; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .side { order: 2; }
+}

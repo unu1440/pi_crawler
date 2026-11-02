@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; object-src 'none'">
+  <title>pi_crawler</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+
+    <!-- 로그인 -->
+  <main id="auth-view" class="auth" hidden>
+    <form id="auth-form" class="auth-form">
+      <h1>pi_crawler</h1>
+
+      <label>아이디 <input id="auth-username" autocomplete="username" required></label>
+      <label>비밀번호 <input id="auth-password" type="password" autocomplete="current-password" required></label>
+
+      <p id="auth-error" class="error" hidden></p>
+      <button id="auth-submit" class="primary">로그인</button>
+
+      <div class="auth-switch">
+        <button type="button" id="mode-login" aria-pressed="true">로그인</button>
+        <button type="button" id="mode-register" aria-pressed="false">회원가입</button>
+      </div>
+    </form>
+  </main>
+
+  <!-- 대시보드 -->
+  <div id="app-view" class="app" hidden>
+    <header class="topbar">
+      <strong class="brand">pi_crawler</strong>
+      <div class="account">
+        <span id="account-name"></span>
+        <button id="logout-button">로그아웃</button>
+      </div>
+    </header>
+
+    <p id="app-error" class="banner error" hidden></p>
+
+    <!-- 처리 현황 -->
+    <section class="bento">
+      <div class="tile tile-action">
+        <p class="tile-label">오늘의 수집</p>
+        <button id="collect-button" class="primary">지금 수집</button>
+        <p id="collect-status" class="hint"></p>
+      </div>
+      <div class="tile"><span class="tile-label">분석 대기</span><strong id="count-collected">0</strong></div>
+      <div class="tile"><span class="tile-label">분석 완료</span><strong id="count-analyzed">0</strong></div>
+      <div class="tile"><span class="tile-label">전달 완료</span><strong id="count-uploaded">0</strong></div>
+      <div class="tile"><span class="tile-label">실패</span><strong id="count-failed">0</strong></div>
+    </section>
+
+    <div class="layout">
+      <aside class="side">
+        <section class="panel">
+          <h2>키워드</h2>
+          <form id="keyword-form" class="keyword-form">
+            <select id="keyword-category" required></select>
+            <input id="keyword-input" required placeholder="키워드 입력">
+            <button>추가</button>
+          </form>
+          <p id="keyword-error" class="error" hidden></p>
+          <ul id="keyword-list" class="keyword-list"></ul>
+        </section>
+
+        <section class="panel">
+          <h2>분류별 건수</h2>
+          <ul id="category-bars" class="bars"></ul>
+        </section>
+      </aside>
+
+      <section class="results">
+        <div class="results-head">
+          <h2>수집 결과 <span id="result-total" class="hint"></span></h2>
+          <a class="button-link" href="/crawl/export.csv">CSV 받기</a>
+        </div>
+
+        <input id="search-input" type="search" placeholder="제목 검색">
+        <div id="top-filters" class="chips"></div>
+        <div id="sub-filters" class="chips"></div>
+
+        <ul id="article-list" class="articles"></ul>
+        <p id="article-empty" class="hint empty">글이 없습니다</p>
+        <button id="more-button" class="more" hidden>더 보기</button>
+      </section>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
