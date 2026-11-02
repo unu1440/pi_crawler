@@ -1,5 +1,5 @@
 """수집과 결과 조회 API."""
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import pymysql
 from fastapi import Depends, FastAPI, HTTPException, Query, Response
@@ -8,11 +8,14 @@ from pydantic import BaseModel, Field
 from app.auth import CurrentUser, redis_client, require_user
 from app.collector import run_collection
 from app.db import open_connection
+from app.exporter import build_csv
 
 app = FastAPI(title="pi_crawler API")
 
 MAX_KEYWORDS_PER_USER = 20   # 외부 요청량 제한
 MYSQL_DUPLICATE_ENTRY = 1062 # UNIQUE 제약 위반 코드
+STATS_DAYS = 14  # 일별 통계 기간
+KOREA_TIMEZONE = timezone(timedelta(hours=9))
 COLLECT_LOCK_SECONDS = 60  # 사용자별 수집 간격
 KEYWORD_SEPARATOR = "\x1f" # 키워드 묶음 구분 문자
 
@@ -225,3 +228,86 @@ def list_articles(
     ]
 
     return {"total": total, "items": items}
+
+@app.get("/stats")
+def read_stats(user: CurrentUser = Depends(require_user)) -> dict:
+    """단계별, 분류별, 날짜별 건수 조회. 날짜는 한국 시간 기준."""
+    today = datetime.now(KOREA_TIMEZONE).date()
+    first_day = today - timedelta(days=STATS_DAYS - 1)
+
+    with open_connection() as connection, connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT a.status, COUNT(DISTINCT a.id) AS article_count
+            {USER_ARTICLES_FROM}
+            GROUP BY a.status
+            """,
+            (user.user_id,),
+        )
+        status_rows = cursor.fetchall()
+
+        cursor.execute(
+            f"""
+            SELECT COALESCE(CONCAT(p.name, ' / ', c.name), c.name, '미분류') AS category,
+                   COUNT(DISTINCT a.id) AS article_count
+            {USER_ARTICLES_FROM}
+            WHERE a.status <> 'duplicate'
+            GROUP BY category
+            ORDER BY article_count DESC, category
+            """,
+            (user.user_id,),
+        )
+        category_rows = cursor.fetchall()
+
+        cursor.execute(
+            f"""
+            SELECT DATE(CONVERT_TZ(COALESCE(a.published_at, a.collected_at), '+00:00', '+09:00')) AS stat_date,
+                   COUNT(DISTINCT a.id) AS article_count
+            {USER_ARTICLES_FROM}
+            WHERE a.status <> 'duplicate'
+            GROUP BY stat_date
+            HAVING stat_date BETWEEN %s AND %s
+            """,
+            (user.user_id, first_day, today),
+        )
+        day_rows = cursor.fetchall()
+
+    by_status = {"collected": 0, "analyzed": 0, "uploaded": 0, "failed": 0}
+    for row in status_rows:
+        if row["status"] in by_status:
+            by_status[row["status"]] = row["article_count"]
+
+    # 글이 없는 날도 0으로 포함
+    count_by_day = {row["stat_date"]: row["article_count"] for row in day_rows}
+    days = [first_day + timedelta(days=offset) for offset in range(STATS_DAYS)]
+
+    return {
+        "by_status": by_status,
+        "by_category": [{"category": row["category"], "count": row["article_count"]} for row in category_rows],
+        "by_day": [{"date": day.isoformat(), "count": count_by_day.get(day, 0)} for day in days],
+    }
+
+
+@app.get("/export.csv")
+def export_csv(user: CurrentUser = Depends(require_user)) -> Response:
+    """내 글을 CSV로 내려받기."""
+    with open_connection() as connection, connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT a.id, a.title, a.publisher, a.published_at, a.url, a.summary, a.excerpt, a.collected_at,
+                   c.name AS category_name, p.name AS parent_name
+            {USER_ARTICLES_FROM}
+            WHERE a.status <> 'duplicate'
+            GROUP BY a.id
+            ORDER BY COALESCE(a.published_at, a.collected_at) DESC, a.id DESC
+            """,
+            (user.user_id,),
+        )
+        rows = cursor.fetchall()
+
+    filename = f"pi_crawler_{datetime.now(timezone.utc):%Y%m%d_%H%M%S}.csv"
+    return Response(
+        content=build_csv(rows),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
