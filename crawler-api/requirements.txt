@@ -1,5 +1,8 @@
+certifi==2026.10.23
 cryptography==50.0.2
 fastapi==0.162.0
+feedparser==6.0.14
+httpx==0.28.1
 PyMySQL==1.2.3
 redis==8.1.0
 uvicorn==0.54.0
